@@ -1,0 +1,4 @@
+.venv
+generate_pdf.py
+report.pdf
+.vscode

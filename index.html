@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>VR Dream Villa - Examination Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- A-Frame core (stable CDN) -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+    </style>
+  </head>
+
+  <body>
+    <a-scene
+      renderer="antialias: true; colorManagement: true; physicallyCorrectLights: true; highRefreshRate: true"
+      shadow="type: pcfsoft"
+      background="color: #cce0ff"
+      vr-mode-ui="enabled: true"
+      device-orientation-permission-ui="enabled: true"
+    >
+      <!-- ========================================= -->
+      <!-- =============== ASSETS ================== -->
+      <!-- ========================================= -->
+      <a-assets>
+        <img src="assets/images/image.png" id="sky" />
+        <!-- Villa model -->
+        <a-asset-item
+          id="villaCompleteModel"
+          src="assets/models/villa.glb"
+        ></a-asset-item>
+        <a-asset-item id="carModel" src="assets/models/car.glb"></a-asset-item>
+        <a-asset-item
+          id="livingRoomModel"
+          src="assets/models/white_modern_living_room.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="kitchenModel"
+          src="assets/models/modern_kitchen.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="bedroomModel"
+          src="assets/models/minimalistic_modern_bedroom.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="deskModel"
+          src="assets/models/Desk.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="couchModel"
+          src="assets/models/Couch.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="floorTexture"
+          src="assets/textures/floor-interior.png"
+        ></a-asset-item>
+      </a-assets>
+
+      <a-sky src="#sky"></a-sky>
+
+      <!-- ========================================= -->
+      <!-- ============= LIGHTING ================= -->
+      <!-- ========================================= -->
+      <!-- Ambient light for general visibility -->
+      <a-entity
+        light="type: ambient; intensity: 0.7; color: #ffffff"
+      ></a-entity>
+
+      <!-- Directional light (sunlight) -->
+      <a-entity
+        light="type: directional; intensity: 1.2; castShadow: true; color: #ffffff"
+        position="4 8 -6"
+      ></a-entity>
+
+      <!-- ========================================= -->
+      <!-- ========= CAMERA / PLAYER RIG ========== -->
+      <!-- ========================================= -->
+      <a-entity
+        id="playerRig"
+        position="-8 1 20"
+        wasd-controls="acceleration: 25"
+        look-controls="pointerLockEnabled: true"
+      >
+        <a-entity camera position="20 1.6 30"></a-entity>
+      </a-entity>
+
+      <!-- ========================================= -->
+      <!-- ============ GROUND PLANE ============= -->
+      <!-- ========================================= -->
+      <a-entity
+        geometry="primitive: plane; width: 100; height: 100"
+        rotation="-90 0 0"
+        position="0 0 0"
+        material="color: #7cb342; roughness: 1; metalness: 0"
+        receive-shadow="true"
+      ></a-entity>
+
+      <!-- ========================================= -->
+      <!-- ============ VILLA BUILDING =========== -->
+      <!-- ========================================= -->
+      <a-entity id="villa" position="0 0 0">
+        <!-- Main building model -->
+        <a-gltf-model
+          id="villaModel"
+          src="#villaCompleteModel"
+          position="0 0 0"
+          rotation="0 0 0"
+          scale="2 2 2"
+          cast-shadow="true"
+          receive-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- car (placed left-front of villa, scaled down) -->
+      <a-entity id="car" position="-8 0 8" rotation="0 45 0">
+        <a-gltf-model
+          id="villacar"
+          src="#carModel"
+          position="-4 0 26"
+          rotation="0 0 0"
+          scale="0.015 0.015 0.015"
+          cast-shadow="true"
+          receive-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- ========================================= -->
+      <!-- ============ DECORATIONS ============== -->
+      <!-- ========================================= -->
+
+      <!-- Living Room -->
+
+      <a-entity id="livingRoom" position="0 1 4">
+        <a-gltf-model
+          src="#livingRoomModel"
+          position="3 0 -2"
+          scale="2.0 1.4 2.0"
+          rotation="0 -140 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- Bedroom -->
+      <a-entity id="bedroom" position="0 4 4">
+        <a-gltf-model
+          src="#bedroomModel"
+          position="8 0 -19"
+          scale="1.8 1.4 1.4"
+          rotation="0 -150 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- Kitchen -->
+
+      <a-entity id="kitchen" position="0 0.8 4">
+        <a-gltf-model
+          src="#kitchenModel"
+          position="-18 0 3"
+          scale="1 1 1"
+          rotation="0 130 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- Office -->
+      <a-entity id="office" position="-8 0 3">
+        <a-gltf-model
+          src="#deskModel"
+          position="10 1 -6"
+          scale="2.0 1.4 2.0"
+          rotation="0 60 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+      <a-entity id="couch" position="-4 0 6">
+        <a-gltf-model
+          src="#couchModel"
+          position="0 1 -16"
+          scale="2.0 2 2.0"
+          rotation="0 140 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
