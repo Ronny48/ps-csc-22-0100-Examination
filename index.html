@@ -22,6 +22,7 @@
           sans-serif;
       }
     </style>
+    <script src="js/fence.js"></script>
   </head>
 
   <body>
@@ -37,12 +38,30 @@
       <!-- ========================================= -->
       <a-assets>
         <img src="assets/images/image.png" id="sky" />
+        <img
+          id="gateTexture"
+          src="assets/images/gate.png"
+          crossorigin="anonymous"
+        />
+        <img id="grass" src="assets/images/grass.png" crossorigin="anonymous" />
         <!-- Villa model -->
         <a-asset-item
           id="villaCompleteModel"
           src="assets/models/villa.glb"
         ></a-asset-item>
+        <a-asset-item
+          id="couchModel"
+          src="assets/models/Couch.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="deskModel"
+          src="assets/models/Desk.glb"
+        ></a-asset-item>
         <a-asset-item id="carModel" src="assets/models/car.glb"></a-asset-item>
+        <a-asset-item
+          id="treeModel"
+          src="assets/models/tree.glb"
+        ></a-asset-item>
         <a-asset-item
           id="livingRoomModel"
           src="assets/models/livingroom.glb"
@@ -62,15 +81,29 @@
       <!-- ========================================= -->
       <!-- ============= LIGHTING ================= -->
       <!-- ========================================= -->
-      <!-- Ambient light for general visibility -->
+      <!-- Improved lighting: hemisphere for sky/ground, stronger directional key light, and fill lights -->
       <a-entity
-        light="type: ambient; intensity: 0.7; color: #ffffff"
+        light="type: hemisphere; skyColor: #e6f3ff; groundColor: #606060; intensity: 0.6"
       ></a-entity>
 
-      <!-- Directional light (sunlight) -->
+      <!-- Directional key (sun) -->
       <a-entity
-        light="type: directional; intensity: 1.2; castShadow: true; color: #ffffff"
-        position="4 8 -6"
+        light="type: directional; intensity: 1.5; color: #fff"
+        position="6 12 -8"
+        rotation="-35 45 0"
+        shadow="cast: true; mapSizeWidth: 2048; mapSizeHeight: 2048; cameraLeft: -30; cameraRight: 30; cameraTop: 30; cameraBottom: -30"
+      ></a-entity>
+
+      <!-- Warm fill light near villa to reveal details -->
+      <a-entity
+        light="type: point; intensity: 0.45; distance: 20; color: #ffd8b3"
+        position="-2 3 6"
+      ></a-entity>
+
+      <!-- Cool rim/back light to separate objects from sky -->
+      <a-entity
+        light="type: point; intensity: 0.35; distance: 30; color: #bcd8ff"
+        position="-10 6 -20"
       ></a-entity>
 
       <!-- ========================================= -->
@@ -78,11 +111,14 @@
       <!-- ========================================= -->
       <a-entity
         id="playerRig"
-        position="-8 1 20"
+        position="12 1 50"
         wasd-controls="acceleration: 25"
-        look-controls="pointerLockEnabled: true"
       >
-        <a-entity camera position="20 1.6 30"></a-entity>
+        <a-entity
+          camera
+          position="0 1.6 0"
+          look-controls="pointerLockEnabled: true"
+        ></a-entity>
       </a-entity>
 
       <!-- ========================================= -->
@@ -92,7 +128,7 @@
         geometry="primitive: plane; width: 100; height: 100"
         rotation="-90 0 0"
         position="0 0 0"
-        material="color: #7cb342; roughness: 1; metalness: 0"
+        material="src: #grass; repeat: 40 40; roughness: 1; metalness: 0"
         receive-shadow="true"
       ></a-entity>
 
@@ -125,6 +161,19 @@
         ></a-gltf-model>
       </a-entity>
 
+      <!-- Tree (placed at car position) -->
+      <a-entity id="tree" position="0 0 0" rotation="0 0 0">
+        <a-gltf-model
+          id="treeModel1"
+          src="#treeModel"
+          position="17 0 20"
+          rotation="0 0 0"
+          scale="0.09 0.09 0.09"
+          cast-shadow="true"
+          receive-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
       <!-- ========================================= -->
       <!-- ============ DECORATIONS ============== -->
       <!-- ========================================= -->
@@ -139,15 +188,33 @@
           rotation="0 -140 0"
           cast-shadow="true"
         ></a-gltf-model>
+        <!-- Couch placed in living room (uses living room model position as reference) -->
+        <a-gltf-model
+          id="couch"
+          src="#couchModel"
+          position="1 -0.2 -15"
+          scale="1.4 1.4 1.4"
+          rotation="0 50 0"
+          cast-shadow="true"
+        ></a-gltf-model>
+        <!-- Desk placed in living room (slight offset) -->
+        <a-gltf-model
+          id="desk"
+          src="#deskModel"
+          position="-1 -0.5 -9"
+          scale="1.4 1.4 1.4"
+          rotation="0 45 0"
+          cast-shadow="true"
+        ></a-gltf-model>
       </a-entity>
 
       <!-- Bedroom -->
-      <a-entity id="bedroom" position="0 4 4">
+      <a-entity id="bedroom" position="0 3.5 4">
         <a-gltf-model
           src="#bedroomModel"
           position="8 0 -19"
           scale="1.8 1.4 1.4"
-          rotation="0 -150 0"
+          rotation="0 -135 0"
           cast-shadow="true"
         ></a-gltf-model>
       </a-entity>
@@ -163,6 +230,203 @@
           cast-shadow="true"
         ></a-gltf-model>
       </a-entity>
+
+      <!-- ========================================= -->
+      <!-- ============ FENCE ==================== -->
+      <!-- ========================================= -->
+      <a-entity id="fenceGroup">
+        <!-- North Wall -->
+        <a-entity
+          geometry="primitive: plane; width: 90; height: 3"
+          position="0 1.5 -45"
+          rotation="0 0 0"
+          fence-texture="repeatX: 45; repeatY: 1; color: #333333"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+        <!-- South Wall (split for entrance) -->
+        <!-- Left segment -->
+        <a-entity
+          geometry="primitive: plane; width: 39; height: 3"
+          position="-25.5 1.5 45"
+          rotation="0 180 0"
+          fence-texture="repeatX: 39; repeatY: 1; color: #333333"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+        <!-- Gate posts and doors (centered) -->
+        <a-entity id="gateGroup">
+          <!-- Left post -->
+          <a-entity
+            geometry="primitive: box; width: 0.4; height: 2.8; depth: 0.4"
+            position="-6 1.4 45"
+            rotation="0 180 0"
+            material="color: #111111"
+            shadow="cast: true"
+          ></a-entity>
+          <!-- Right post -->
+          <a-entity
+            geometry="primitive: box; width: 0.4; height: 2.8; depth: 0.4"
+            position="6 1.4 45"
+            rotation="0 180 0"
+            material="color: #111111"
+            shadow="cast: true"
+          ></a-entity>
+          <!-- Left door panel -->
+          <a-entity
+            id="leftDoor"
+            geometry="primitive: box; width: 5.6; height: 2.4; depth: 0.1"
+            position="-2.8 1.25 45"
+            rotation="0 180 0"
+            material="src: #gateTexture; color: #ffffff; side: double; repeat: 2 1; roughness: 1; metalness: 0.08"
+            shadow="cast: true"
+            animation__open="property: rotation; to: 0 130 0; dur: 600; easing: easeOutCubic; startEvents: open"
+            animation__close="property: rotation; to: 0 180 0; dur: 600; easing: easeInCubic; startEvents: close"
+          >
+          </a-entity>
+          <!-- Right door panel -->
+          <a-entity
+            id="rightDoor"
+            geometry="primitive: box; width: 5.6; height: 2.4; depth: 0.1"
+            position="2.8 1.25 45"
+            rotation="0 180 0"
+            material="src: #gateTexture; color: #ffffff; side: double; repeat: 2 1; roughness: 1; metalness: 0.08"
+            shadow="cast: true"
+            animation__open="property: rotation; to: 0 230 0; dur: 600; easing: easeOutCubic; startEvents: open"
+            animation__close="property: rotation; to: 0 180 0; dur: 600; easing: easeInCubic; startEvents: close"
+          >
+          </a-entity>
+        </a-entity>
+        <!-- Right segment -->
+        <a-entity
+          geometry="primitive: plane; width: 39; height: 3"
+          position="25.5 1.5 45"
+          rotation="0 180 0"
+          fence-texture="repeatX: 39; repeatY: 1; color: #333333"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+        <!-- East Wall -->
+        <a-entity
+          geometry="primitive: plane; width: 90; height: 3"
+          position="45 1.5 0"
+          rotation="0 -90 0"
+          fence-texture="repeatX: 45; repeatY: 1; color: #333333"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+        <!-- West Wall -->
+        <a-entity
+          geometry="primitive: plane; width: 90; height: 3"
+          position="-45 1.5 0"
+          rotation="0 90 0"
+          fence-texture="repeatX: 45; repeatY: 1; color: #333333"
+          shadow="cast: true; receive: true"
+        ></a-entity>
+      </a-entity>
     </a-scene>
+    <script>
+      (function () {
+        var img = document.getElementById("gateTexture");
+        if (!img) return;
+        // If an external image file was provided (e.g. assets/images/gate.png),
+        // use it. Only generate the procedural texture when no src is set.
+        var existingSrc = img.getAttribute("src");
+        if (existingSrc && existingSrc.trim() !== "") {
+          // external texture present — skip procedural generation
+          // still attach toggle behavior below
+          img.addEventListener("load", function () {
+            // noop: loaded
+          });
+          // add gate toggling (click-to-toggle)
+          var gateGroup = document.getElementById("gateGroup");
+          var left = document.getElementById("leftDoor");
+          var right = document.getElementById("rightDoor");
+          var gateOpen = false;
+          if (gateGroup && left && right) {
+            gateGroup.style.cursor = "pointer";
+            gateGroup.addEventListener("click", function (evt) {
+              gateOpen = !gateOpen;
+              if (gateOpen) {
+                left.emit("open");
+                right.emit("open");
+              } else {
+                left.emit("close");
+                right.emit("close");
+              }
+            });
+          }
+          return;
+        }
+        var size = 1024;
+        var canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext("2d");
+
+        // Base wood color
+        var base = ctx.createLinearGradient(0, 0, 0, size);
+        base.addColorStop(0, "#b07a4b");
+        base.addColorStop(1, "#8b5a33");
+        ctx.fillStyle = base;
+        ctx.fillRect(0, 0, size, size);
+
+        // Grain lines
+        ctx.globalAlpha = 0.18;
+        for (var i = 0; i < 120; i++) {
+          var x = Math.random() * size;
+          var w = 1 + Math.random() * 3;
+          ctx.strokeStyle = "rgba(0,0,0,0.08)";
+          ctx.lineWidth = w;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          for (var y = 0; y < size; y += 30) {
+            ctx.lineTo(x + Math.sin((y + i * 10) * 0.02) * 10, y);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+
+        // Planks separations
+        ctx.fillStyle = "rgba(0,0,0,0.06)";
+        var plankCount = 4;
+        for (var p = 0; p < plankCount; p++) {
+          var py = Math.round(size * (p / plankCount));
+          ctx.fillRect(0, py, size, 6);
+        }
+
+        // Knots
+        for (var k = 0; k < 30; k++) {
+          var kx = Math.random() * size;
+          var ky = Math.random() * size;
+          var kr = 6 + Math.random() * 20;
+          var g = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
+          g.addColorStop(0, "rgba(0,0,0,0.25)");
+          g.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(kx, ky, kr, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Update asset image
+        img.src = canvas.toDataURL("image/png");
+
+        // Add gate open/close toggling (click gateGroup to toggle)
+        var gateGroup = document.getElementById("gateGroup");
+        var left = document.getElementById("leftDoor");
+        var right = document.getElementById("rightDoor");
+        var gateOpen = false;
+        if (gateGroup && left && right) {
+          gateGroup.style.cursor = "pointer";
+          gateGroup.addEventListener("click", function (evt) {
+            gateOpen = !gateOpen;
+            if (gateOpen) {
+              left.emit("open");
+              right.emit("open");
+            } else {
+              left.emit("close");
+              right.emit("close");
+            }
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
