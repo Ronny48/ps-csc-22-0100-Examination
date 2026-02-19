@@ -44,6 +44,7 @@
           crossorigin="anonymous"
         />
         <img id="grass" src="assets/images/grass.png" crossorigin="anonymous" />
+        <img id="patioTexture" crossorigin="anonymous" />
         <!-- Villa model -->
         <a-asset-item
           id="villaCompleteModel"
@@ -73,6 +74,10 @@
         <a-asset-item
           id="bedroomModel"
           src="assets/models/bedroom.glb"
+        ></a-asset-item>
+        <a-asset-item
+          id="patioModel"
+          src="assets/models/patio.glb"
         ></a-asset-item>
       </a-assets>
 
@@ -169,6 +174,19 @@
           position="17 0 20"
           rotation="0 0 0"
           scale="0.09 0.09 0.09"
+          cast-shadow="true"
+          receive-shadow="true"
+        ></a-gltf-model>
+      </a-entity>
+
+      <!-- Patio -->
+      <a-entity id="patio" position="0 0 0" rotation="0 0 0">
+        <a-gltf-model
+          id="patioModel1"
+          src="#patioModel"
+          position="21 0 -20"
+          rotation="0 0 0"
+          scale="0.035 0.035 0.035"
           cast-shadow="true"
           receive-shadow="true"
         ></a-gltf-model>
@@ -426,6 +444,61 @@
             }
           });
         }
+      })();
+    </script>
+    <script>
+      // Generate a simple stone/tile texture for the patio
+      (function () {
+        var img = document.getElementById("patioTexture");
+        if (!img) return;
+        var w = 1024,
+          h = 1024;
+        var canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext("2d");
+
+        // base color
+        ctx.fillStyle = "#9ea3a6";
+        ctx.fillRect(0, 0, w, h);
+
+        // draw tiles grid
+        var cols = 6,
+          rows = 4;
+        var tw = Math.floor(w / cols),
+          th = Math.floor(h / rows);
+        ctx.lineWidth = 6;
+        for (var y = 0; y < rows; y++) {
+          for (var x = 0; x < cols; x++) {
+            var px = x * tw,
+              py = y * th;
+            // subtle variation
+            var variation = Math.floor((Math.random() - 0.5) * 20);
+            ctx.fillStyle =
+              "rgb(" +
+              (160 + variation) +
+              "," +
+              (163 + variation) +
+              "," +
+              (166 + variation) +
+              ")";
+            ctx.fillRect(px + 4, py + 4, tw - 8, th - 8);
+            ctx.strokeStyle = "rgba(0,0,0,0.12)";
+            ctx.strokeRect(px + 4, py + 4, tw - 8, th - 8);
+          }
+        }
+
+        // subtle noise
+        var imageData = ctx.getImageData(0, 0, w, h);
+        for (var i = 0; i < imageData.data.length; i += 4) {
+          var n = (Math.random() - 0.5) * 8;
+          imageData.data[i] = imageData.data[i] + n;
+          imageData.data[i + 1] = imageData.data[i + 1] + n;
+          imageData.data[i + 2] = imageData.data[i + 2] + n;
+        }
+        ctx.putImageData(imageData, 0, 0);
+
+        img.src = canvas.toDataURL("image/png");
       })();
     </script>
   </body>
