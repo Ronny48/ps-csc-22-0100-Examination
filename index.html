@@ -88,16 +88,27 @@
       <!-- ========================================= -->
       <!-- Improved lighting: hemisphere for sky/ground, stronger directional key light, and fill lights -->
       <a-entity
-        light="type: hemisphere; skyColor: #e6f3ff; groundColor: #606060; intensity: 0.6"
-      ></a-entity>
+        light="type: hemisphere; color: #e6f3ff; groundColor: #606060; intensity: 0.6"
+      >
+      </a-entity>
 
       <!-- Directional key (sun) -->
       <a-entity
-        light="type: directional; intensity: 1.5; color: #fff"
+        light="
+    type: directional;
+    intensity: 1.5;
+    castShadow: true;
+    shadowMapWidth: 2048;
+    shadowMapHeight: 2048;
+    shadowCameraLeft: -30;
+    shadowCameraRight: 30;
+    shadowCameraTop: 30;
+    shadowCameraBottom: -30;
+  "
         position="6 12 -8"
         rotation="-35 45 0"
-        shadow="cast: true; mapSizeWidth: 2048; mapSizeHeight: 2048; cameraLeft: -30; cameraRight: 30; cameraTop: 30; cameraBottom: -30"
-      ></a-entity>
+      >
+      </a-entity>
 
       <!-- Warm fill light near villa to reveal details -->
       <a-entity
@@ -116,12 +127,13 @@
       <!-- ========================================= -->
       <a-entity
         id="playerRig"
-        position="12 1 50"
-        wasd-controls="acceleration: 25"
+        position="12 1.6 50"
+        wasd-controls="acceleration: 20; fly: true"
+        movement-constraints="minY:0.5; maxY:5"
       >
         <a-entity
           camera
-          position="0 1.6 0"
+          position="0 0 0"
           look-controls="pointerLockEnabled: true"
         ></a-entity>
       </a-entity>
@@ -500,6 +512,64 @@
 
         img.src = canvas.toDataURL("image/png");
       })();
+    </script>
+    <script>
+      document
+        .querySelector("#villaModel")
+        .addEventListener("model-loaded", (e) => {
+          const model = e.detail.model;
+          const pool = model.getObjectByName("Cube011_1");
+
+          if (!pool) {
+            console.warn("Cube011_1 not found");
+            return;
+          }
+
+          pool.material = new THREE.ShaderMaterial({
+            side: THREE.DoubleSide,
+            transparent: true,
+            depthWrite: false,
+            uniforms: {
+              time: { value: 0.0 },
+            },
+            vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+            fragmentShader: `
+          uniform float time;
+          varying vec2 vUv;
+
+          void main() {
+
+            // BIGGER, CLEARER WAVES
+            float wave1 = sin(vUv.x * 20.0 + time * 2.0);
+            float wave2 = cos(vUv.y * 15.0 + time * 1.5);
+            float ripple = (wave1 + wave2) * 0.08;
+
+            // Moving light bands (fake reflections)
+            float shimmer = sin((vUv.x + vUv.y + time) * 8.0) * 0.05;
+
+            vec3 deepWater = vec3(0.0, 0.35, 0.6);
+            vec3 shallowWater = vec3(0.0, 0.55, 0.8);
+
+            vec3 color = mix(deepWater, shallowWater, ripple + shimmer);
+
+            gl_FragColor = vec4(color, 0.9);
+          }
+        `,
+          });
+
+          function animateWater() {
+            pool.material.uniforms.time.value += 0.04;
+            requestAnimationFrame(animateWater);
+          }
+
+          animateWater();
+        });
     </script>
   </body>
 </html>
